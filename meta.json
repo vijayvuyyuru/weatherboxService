@@ -1,0 +1,24 @@
+{
+  "$schema": "https://dl.viam.dev/module.schema.json",
+  "module_id": "vijayvuyyuru:weatherbox-service",
+  "visibility": "public",
+  "url": "https://github.com/vijayvuyyuru/weatherboxService",
+  "description": "Modular generic service: service",
+  "models": [
+    {
+      "api": "rdk:service:generic",
+      "model": "vijayvuyyuru:weatherbox-service:service"
+    }
+  ],
+  "entrypoint": "bin/weatherbox-service",
+  "first_run": "",
+  "build": {
+    "build": "make module.tar.gz",
+    "setup": "make setup",
+    "path": "bin/module.tar.gz",
+    "arch": [
+      "linux/amd64",
+      "linux/arm64"
+    ]
+  }
+}

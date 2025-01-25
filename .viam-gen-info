@@ -1,0 +1,12 @@
+{
+  "module_name": "weatherbox-service",
+  "namespace": "vijayvuyyuru",
+  "language": "go",
+  "resource_type": "service",
+  "resource_subtype": "generic",
+  "model_name": "service",
+  "enable_cloud_build": true,
+  "initialize_git": false,
+  "generator_version": "0.1.0",
+  "generated_on": "2025-01-25T00:11:05.601771Z"
+}
