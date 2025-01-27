@@ -2,17 +2,22 @@ package models
 
 import (
 	"context"
-	"errors"
+	"fmt"
+	"sync"
+	"time"
 
+	"github.com/benbjohnson/clock"
+	"github.com/pkg/errors"
+
+	"go.viam.com/rdk/components/generic"
+	"go.viam.com/rdk/components/sensor"
 	"go.viam.com/rdk/logging"
 	"go.viam.com/rdk/resource"
-	"go.viam.com/rdk/services/generic"
 	"go.viam.com/utils/rpc"
 )
 
 var (
-	Service          = resource.NewModel("vijayvuyyuru", "weatherbox-service", "service")
-	errUnimplemented = errors.New("unimplemented")
+	Service = resource.NewModel("vijayvuyyuru", "weatherbox-service", "service")
 )
 
 func init() {
@@ -24,33 +29,23 @@ func init() {
 }
 
 type Config struct {
-	/*
-		Put config attributes here. There should be public/exported fields
-		with a `json` parameter at the end of each attribute.
-
-		Example config struct:
-			type Config struct {
-				Pin   string `json:"pin"`
-				Board string `json:"board"`
-				MinDeg *float64 `json:"min_angle_deg,omitempty"`
-			}
-
-		If your model does not need a config, replace *Config in the init
-		function with resource.NoNativeConfig
-	*/
-
-	/* Uncomment this if your model does not need to be validated
-	   and has no implicit dependecies. */
-	// resource.TriviallyValidateConfig
+	RefreshInterval int    `json:"refresh-interval"`
+	WeatherSensor   string `json:"weather-sensor"`
+	LedComponent    string `json:"led-component"`
 }
 
-// Validate ensures all parts of the config are valid and important fields exist.
-// Returns implicit dependencies based on the config.
-// The path is the JSON path in your robot's config (not the `Config` struct) to the
-// resource being validated; e.g. "components.0".
 func (cfg *Config) Validate(path string) ([]string, error) {
 	// Add config validation code here
-	return nil, nil
+	if cfg.RefreshInterval == 0 {
+		return nil, fmt.Errorf(`expected "refresh-interval" attribute for weather module`)
+	}
+	if cfg.WeatherSensor == "" {
+		return nil, fmt.Errorf(`expected "weather-sensor" attribute for weather module`)
+	}
+	if cfg.LedComponent == "" {
+		return nil, fmt.Errorf(`expected "led-component" attribute for weather module`)
+	}
+	return []string{cfg.WeatherSensor, cfg.LedComponent}, nil
 }
 
 type weatherboxServiceService struct {
@@ -62,13 +57,13 @@ type weatherboxServiceService struct {
 	cancelCtx  context.Context
 	cancelFunc func()
 
-	/* Uncomment this if your model does not need to reconfigure. */
-	// resource.TriviallyReconfigurable
+	ledUpdateCtx  context.Context
+	ledCancelFunc func()
+	ledWg         sync.WaitGroup
 
-	// Uncomment this if the model does not have any goroutines that
-	// need to be shut down while closing.
-	// resource.TriviallyCloseable
-
+	weatherSensor   sensor.Sensor
+	ledComponent    resource.Resource
+	refreshInterval time.Duration
 }
 
 func newWeatherboxServiceService(ctx context.Context, deps resource.Dependencies, rawConf resource.Config, logger logging.Logger) (resource.Resource, error) {
@@ -86,6 +81,9 @@ func newWeatherboxServiceService(ctx context.Context, deps resource.Dependencies
 		cancelCtx:  cancelCtx,
 		cancelFunc: cancelFunc,
 	}
+	if err = s.Reconfigure(ctx, deps, rawConf); err != nil {
+		return nil, err
+	}
 	return s, nil
 }
 
@@ -94,20 +92,85 @@ func (s *weatherboxServiceService) Name() resource.Name {
 }
 
 func (s *weatherboxServiceService) Reconfigure(ctx context.Context, deps resource.Dependencies, conf resource.Config) error {
-	// Put reconfigure code here
-	return errUnimplemented
+	config, err := resource.NativeConfig[*Config](conf)
+	if err != nil {
+		return err
+	}
+	s.weatherSensor, err = sensor.FromDependencies(deps, config.WeatherSensor)
+	if err != nil {
+		return errors.Wrapf(err, "unable to get weather sensor %v for service", config.WeatherSensor)
+	}
+	s.ledComponent, err = resource.FromDependencies[resource.Resource](deps, resource.NewName(generic.API, config.LedComponent))
+	if err != nil {
+		return errors.Wrapf(err, "unable to get led component %v for service", config.LedComponent)
+	}
+	s.refreshInterval = time.Second * time.Duration(config.RefreshInterval)
+
+	if s.ledCancelFunc != nil {
+		s.ledCancelFunc()
+		s.ledWg.Wait()
+	}
+	s.ledCancelFunc = nil
+	s.ledUpdateCtx = nil
+	s.ledWg = sync.WaitGroup{}
+
+	return nil
 }
 
 func (s *weatherboxServiceService) NewClientFromConn(ctx context.Context, conn rpc.ClientConn, remoteName string, name resource.Name, logger logging.Logger) (resource.Resource, error) {
 	panic("not implemented")
 }
 
-func (s *weatherboxServiceService) DoCommand(ctx context.Context, cmd map[string]interface{}) (map[string]interface{}, error) {
-	panic("not implemented")
+func (s *weatherboxServiceService) DoCommand(ctx context.Context, cmd map[string]any) (map[string]any, error) {
+	state, ok := cmd["state"]
+	if ok {
+		if state == "start" {
+			s.ledUpdateCtx, s.ledCancelFunc = context.WithCancel(ctx)
+			s.ledWg.Add(1)
+			go func() {
+				s.startWeatherVizService(s.ledUpdateCtx, s.refreshInterval)
+			}()
+		} else if state == "stop" {
+			if s.ledCancelFunc == nil {
+				return map[string]any{"warning": "no currently running service to stop"}, nil
+			}
+			s.ledCancelFunc()
+			s.ledWg.Wait()
+			return map[string]any{"stopped": "true"}, nil
+		}
+	}
+	return map[string]any{}, nil
+}
+
+func (s *weatherboxServiceService) startWeatherVizService(ctx context.Context, interval time.Duration) {
+	clk := clock.New()
+	t := clk.Ticker(interval)
+	defer t.Stop()
+	defer s.ledWg.Done()
+	for {
+		if err := ctx.Err(); err != nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+			s.visualizeWeather()
+		}
+	}
+}
+
+func (s *weatherboxServiceService) visualizeWeather() {
+
 }
 
 func (s *weatherboxServiceService) Close(context.Context) error {
-	// Put close code here
 	s.cancelFunc()
+
+	if s.ledCancelFunc != nil {
+		s.ledCancelFunc()
+		s.ledWg.Wait()
+	}
 	return nil
 }
