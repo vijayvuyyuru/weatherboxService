@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -91,6 +92,9 @@ func (s *weatherboxServiceService) Name() resource.Name {
 	return s.name
 }
 
+// outer
+// [50, 255, 10], [255,0, 120], [255, 0, 5]
+
 func (s *weatherboxServiceService) Reconfigure(ctx context.Context, deps resource.Dependencies, conf resource.Config) error {
 	config, err := resource.NativeConfig[*Config](conf)
 	if err != nil {
@@ -151,18 +155,42 @@ func (s *weatherboxServiceService) startWeatherVizService(ctx context.Context, i
 		if err := ctx.Err(); err != nil {
 			return
 		}
-
 		select {
 		case <-ctx.Done():
 			return
 		case <-t.C:
-			s.visualizeWeather()
+			s.visualizeWeather(ctx)
 		}
 	}
 }
 
-func (s *weatherboxServiceService) visualizeWeather() {
+func (s *weatherboxServiceService) visualizeWeather(ctx context.Context) {
+	reading, err := s.weatherSensor.Readings(ctx, map[string]interface{}{})
+	if err != nil {
+		s.logger.Error("error reading weather sensor", "error", err)
+		return
+	}
+	s.logger.Info("weather reading", "reading", reading)
+	conditionRaw, ok := reading["condition"]
+	if !ok {
+		s.logger.Error("no condition reading from weather sensor")
+		return
+	}
+	condition, ok := conditionRaw.(string)
+	if !ok {
+		s.logger.Error("condition reading from weather sensor is not a string")
+		return
+	}
+	s.handleWeatherCondition(ctx, condition)
+}
 
+func (s *weatherboxServiceService) handleWeatherCondition(ctx context.Context, condition string) {
+	switch strings.ToLower(condition) {
+	case "sunny":
+		s.ledComponent.DoCommand(ctx, map[string]interface{}{"color": []int{255, 255, 0}})
+	case "cloudy":
+		s.ledComponent.DoCommand(ctx, map[string]interface{}{"color": []int{128, 128, 128}})
+	}
 }
 
 func (s *weatherboxServiceService) Close(context.Context) error {
