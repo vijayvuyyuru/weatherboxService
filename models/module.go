@@ -18,6 +18,10 @@ import (
 	"go.viam.com/utils/rpc"
 )
 
+const (
+	animationDuration = time.Millisecond * 1003
+)
+
 var (
 	Service      = resource.NewModel("vijayvuyyuru", "weatherbox-service", "service")
 	animationMap = map[string][]Animation{
@@ -42,7 +46,7 @@ var (
 					"colors":        []any{[]any{255, 0, 5}},
 				},
 			},
-				Duration: time.Second * 1,
+				Duration: animationDuration,
 			},
 			{Command: map[string]any{
 				"0": map[string]any{
@@ -64,7 +68,7 @@ var (
 					"colors":        []any{[]any{255, 0, 120}},
 				},
 			},
-				Duration: time.Second * 1,
+				Duration: animationDuration,
 			},
 			{Command: map[string]any{
 				"0": map[string]any{
@@ -86,7 +90,7 @@ var (
 					"colors":        []any{[]any{255, 0, 120}},
 				},
 			},
-				Duration: time.Second * 1,
+				Duration: animationDuration,
 			},
 		}}
 )
