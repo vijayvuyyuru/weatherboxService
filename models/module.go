@@ -10,10 +10,10 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/pkg/errors"
 
-	"go.viam.com/rdk/components/generic"
 	"go.viam.com/rdk/components/sensor"
 	"go.viam.com/rdk/logging"
 	"go.viam.com/rdk/resource"
+	"go.viam.com/rdk/services/generic"
 	"go.viam.com/utils/rpc"
 )
 

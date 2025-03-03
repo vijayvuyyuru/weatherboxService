@@ -2,7 +2,12 @@ module weatherbox-service
 
 go 1.23
 
-require go.viam.com/rdk v0.59.0
+require (
+	github.com/benbjohnson/clock v1.3.5
+	github.com/pkg/errors v0.9.1
+	go.viam.com/rdk v0.64.1
+	go.viam.com/utils v0.1.130
+)
 
 require (
 	cloud.google.com/go v0.115.1 // indirect
@@ -14,10 +19,10 @@ require (
 	git.sr.ht/~sbinet/gg v0.3.1 // indirect
 	github.com/a8m/envsubst v1.4.2 // indirect
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
-	github.com/benbjohnson/clock v1.3.5 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/bluenviron/gortsplib/v4 v4.8.0 // indirect
 	github.com/bufbuild/protocompile v0.9.0 // indirect
+	github.com/bytedance/sonic v1.12.9 // indirect
 	github.com/campoy/embedmd v1.0.0 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
@@ -89,7 +94,6 @@ require (
 	github.com/pion/stun v0.6.1 // indirect
 	github.com/pion/transport/v2 v2.2.10 // indirect
 	github.com/pion/turn/v2 v2.1.6 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rs/cors v1.11.1 // indirect
@@ -115,9 +119,8 @@ require (
 	go.uber.org/goleak v1.3.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	go.viam.com/api v0.1.380 // indirect
+	go.viam.com/api v0.1.388 // indirect
 	go.viam.com/test v1.2.4 // indirect
-	go.viam.com/utils v0.1.123 // indirect
 	golang.org/x/crypto v0.28.0 // indirect
 	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
 	golang.org/x/image v0.19.0 // indirect
