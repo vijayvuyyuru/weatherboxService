@@ -19,7 +19,8 @@ import (
 )
 
 const (
-	animationDuration = time.Millisecond * 1005
+	period            = 10
+	animationDuration = time.Millisecond*1000*period + 10
 )
 
 var (
@@ -30,19 +31,19 @@ var (
 				"0": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        1,
+					"period":        period,
 					"colors":        []any{[]any{255, 70, 0}},
 				},
 				"1": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        1,
+					"period":        period,
 					"colors":        []any{[]any{255, 0, 120}},
 				},
 				"2": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        1,
+					"period":        period,
 					"colors":        []any{[]any{255, 0, 5}},
 				},
 			},
@@ -52,19 +53,19 @@ var (
 				"0": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        1,
+					"period":        period,
 					"colors":        []any{[]any{255, 0, 5}},
 				},
 				"1": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        1,
+					"period":        period,
 					"colors":        []any{[]any{255, 70, 0}},
 				},
 				"2": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        1,
+					"period":        period,
 					"colors":        []any{[]any{255, 0, 120}},
 				},
 			},
@@ -74,19 +75,19 @@ var (
 				"0": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        1,
+					"period":        period,
 					"colors":        []any{[]any{255, 0, 120}},
 				},
 				"1": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        1,
+					"period":        period,
 					"colors":        []any{[]any{255, 0, 5}},
 				},
 				"2": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        1,
+					"period":        period,
 					"colors":        []any{[]any{255, 70, 0}},
 				},
 			},
