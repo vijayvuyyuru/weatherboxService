@@ -10,6 +10,7 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/pkg/errors"
 
+	genericComponent "go.viam.com/rdk/components/generic"
 	"go.viam.com/rdk/components/sensor"
 	"go.viam.com/rdk/logging"
 	"go.viam.com/rdk/resource"
@@ -177,7 +178,7 @@ func (s *weatherboxServiceService) Reconfigure(ctx context.Context, deps resourc
 	if err != nil {
 		return errors.Wrapf(err, "unable to get weather sensor %v for service", config.WeatherSensor)
 	}
-	s.ledComponent, err = resource.FromDependencies[resource.Resource](deps, resource.NewName(generic.API, config.LedComponent))
+	s.ledComponent, err = genericComponent.FromDependencies(deps, config.LedComponent)
 	if err != nil {
 		return errors.Wrapf(err, "unable to get led component %v for service", config.LedComponent)
 	}
