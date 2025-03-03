@@ -48,45 +48,45 @@ var (
 				"0": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        10,
+					"period":        1,
 					"colors":        []any{[]any{255, 0, 5}},
 				},
 				"1": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        10,
+					"period":        1,
 					"colors":        []any{[]any{255, 70, 0}},
 				},
 				"2": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        10,
+					"period":        1,
 					"colors":        []any{[]any{255, 0, 120}},
 				},
 			},
-				Duration: time.Second * 10,
+				Duration: time.Second * 1,
 			},
 			{Command: map[string]any{
 				"0": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        10,
+					"period":        1,
 					"colors":        []any{[]any{255, 0, 5}},
 				},
 				"1": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        10,
+					"period":        1,
 					"colors":        []any{[]any{255, 70, 0}},
 				},
 				"2": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
-					"period":        10,
+					"period":        1,
 					"colors":        []any{[]any{255, 0, 120}},
 				},
 			},
-				Duration: time.Second * 10,
+				Duration: time.Second * 1,
 			},
 		}}
 )
