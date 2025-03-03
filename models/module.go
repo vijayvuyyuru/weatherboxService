@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	animationDuration = time.Millisecond * 1003
+	animationDuration = time.Millisecond * 1005
 )
 
 var (
@@ -75,19 +75,19 @@ var (
 					"set_animation": "pulse",
 					"speed":         0.001,
 					"period":        1,
-					"colors":        []any{[]any{255, 0, 5}},
+					"colors":        []any{[]any{255, 0, 120}},
 				},
 				"1": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
 					"period":        1,
-					"colors":        []any{[]any{255, 70, 0}},
+					"colors":        []any{[]any{255, 0, 5}},
 				},
 				"2": map[string]any{
 					"set_animation": "pulse",
 					"speed":         0.001,
 					"period":        1,
-					"colors":        []any{[]any{255, 0, 120}},
+					"colors":        []any{[]any{255, 70, 0}},
 				},
 			},
 				Duration: animationDuration,
