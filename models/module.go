@@ -206,7 +206,7 @@ func (s *weatherboxServiceService) DoCommand(ctx context.Context, cmd map[string
 			if s.ledCancelFunc != nil {
 				return map[string]any{"warning": "already running"}, nil
 			}
-			s.ledUpdateCtx, s.ledCancelFunc = context.WithCancel(ctx)
+			s.ledUpdateCtx, s.ledCancelFunc = context.WithCancel(s.cancelCtx)
 			s.ledWg.Add(1)
 			go func() {
 				s.startWeatherVizService(s.ledUpdateCtx, s.refreshInterval)
