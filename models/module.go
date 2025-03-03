@@ -203,17 +203,23 @@ func (s *weatherboxServiceService) DoCommand(ctx context.Context, cmd map[string
 	state, ok := cmd["state"]
 	if ok {
 		if state == "start" {
+			if s.ledCancelFunc != nil {
+				return map[string]any{"warning": "already running"}, nil
+			}
 			s.ledUpdateCtx, s.ledCancelFunc = context.WithCancel(ctx)
 			s.ledWg.Add(1)
 			go func() {
 				s.startWeatherVizService(s.ledUpdateCtx, s.refreshInterval)
 			}()
+			return map[string]any{"started": "true"}, nil
 		} else if state == "stop" {
 			if s.ledCancelFunc == nil {
 				return map[string]any{"warning": "no currently running service to stop"}, nil
 			}
 			s.ledCancelFunc()
 			s.ledWg.Wait()
+			s.ledCancelFunc = nil
+			s.ledUpdateCtx = nil
 			return map[string]any{"stopped": "true"}, nil
 		}
 	}
@@ -225,6 +231,8 @@ func (s *weatherboxServiceService) startWeatherVizService(ctx context.Context, i
 	t := clk.Ticker(interval)
 	defer t.Stop()
 	defer s.ledWg.Done()
+	s.logger.Info("starting weather visualization service")
+	s.visualizeWeather(ctx)
 	for {
 		if err := ctx.Err(); err != nil {
 			return
