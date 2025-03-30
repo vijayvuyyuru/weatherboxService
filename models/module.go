@@ -24,76 +24,92 @@ const (
 )
 
 var (
+	SunnyOrange  = []any{255, 70, 0}
+	SunnyRed     = []any{255, 0, 120}
+	SunnyMagenta = []any{255, 0, 5}
+)
+
+var (
 	Service      = resource.NewModel("vijayvuyyuru", "weatherbox-service", "service")
-	animationMap = map[string][]Animation{
+	animationMap = map[string]map[string]any{
 		"sunny": {
-			{Command: map[string]any{
-				"0": map[string]any{
-					"set_animation": "pulse",
-					"speed":         0.001,
-					"period":        period,
-					"colors":        []any{[]any{255, 70, 0}},
-				},
-				"1": map[string]any{
-					"set_animation": "pulse",
-					"speed":         0.001,
-					"period":        period,
-					"colors":        []any{[]any{255, 0, 120}},
-				},
-				"2": map[string]any{
-					"set_animation": "pulse",
-					"speed":         0.001,
-					"period":        period,
-					"colors":        []any{[]any{255, 0, 5}},
-				},
-			},
-				Duration: animationDuration,
-			},
-			{Command: map[string]any{
-				"0": map[string]any{
-					"set_animation": "pulse",
-					"speed":         0.001,
-					"period":        period,
-					"colors":        []any{[]any{255, 0, 5}},
-				},
-				"1": map[string]any{
-					"set_animation": "pulse",
-					"speed":         0.001,
-					"period":        period,
-					"colors":        []any{[]any{255, 70, 0}},
-				},
-				"2": map[string]any{
-					"set_animation": "pulse",
-					"speed":         0.001,
-					"period":        period,
-					"colors":        []any{[]any{255, 0, 120}},
+			"0": map[string]any{
+				"sequence": map[string]any{
+					"animations": []map[string]any{
+						{
+							"animation_name": "pulse",
+							"speed":          0.001,
+							"period":         10,
+							"colors":         []any{SunnyOrange},
+						},
+						{
+							"animation_name": "pulse",
+							"speed":          0.001,
+							"period":         10,
+							"colors":         []any{SunnyRed},
+						},
+						{
+							"animation_name": "pulse",
+							"speed":          0.001,
+							"period":         10,
+							"colors":         []any{SunnyMagenta},
+						},
+					},
+					"duration": 10,
 				},
 			},
-				Duration: animationDuration,
-			},
-			{Command: map[string]any{
-				"0": map[string]any{
-					"set_animation": "pulse",
-					"speed":         0.001,
-					"period":        period,
-					"colors":        []any{[]any{255, 0, 120}},
+			"1": map[string]any{
+				"sequence": map[string]any{
+					"animations": []map[string]any{
+						{
+							"animation_name": "pulse",
+							"speed":          0.001,
+							"period":         10,
+							"colors":         []any{SunnyRed},
+						},
+						{
+							"animation_name": "pulse",
+							"speed":          0.001,
+							"period":         10,
+							"colors":         []any{SunnyMagenta},
+						},
+						{
+							"animation_name": "pulse",
+							"speed":          0.001,
+							"period":         10,
+							"colors":         []any{SunnyOrange},
+						},
+					},
+					"duration": 10,
 				},
-				"1": map[string]any{
-					"set_animation": "pulse",
-					"speed":         0.001,
-					"period":        period,
-					"colors":        []any{[]any{255, 0, 5}},
-				},
-				"2": map[string]any{
-					"set_animation": "pulse",
-					"speed":         0.001,
-					"period":        period,
-					"colors":        []any{[]any{255, 70, 0}},
+			},
+			"2": map[string]any{
+				"sequence": map[string]any{
+					"animations": []map[string]any{
+						{
+							"animation_name": "pulse",
+							"speed":          0.001,
+							"period":         10,
+							"colors":         []any{SunnyMagenta},
+						},
+						{
+							"animation_name": "pulse",
+							"speed":          0.001,
+							"period":         10,
+							"colors":         []any{SunnyOrange},
+						},
+						{
+							"animation_name": "pulse",
+							"speed":          0.001,
+							"period":         10,
+							"colors":         []any{SunnyRed},
+						},
+					},
+					"duration": 10,
 				},
 			},
-				Duration: animationDuration,
-			},
-		}}
+		},
+	}
 )
 
 func init() {
@@ -140,10 +156,6 @@ type weatherboxServiceService struct {
 	weatherSensor   sensor.Sensor
 	ledComponent    resource.Resource
 	refreshInterval time.Duration
-
-	animationCtx    context.Context
-	animationCancel func()
-	animationWg     sync.WaitGroup
 }
 
 func newWeatherboxServiceService(ctx context.Context, deps resource.Dependencies, rawConf resource.Config, logger logging.Logger) (resource.Resource, error) {
@@ -272,61 +284,21 @@ func (s *weatherboxServiceService) visualizeWeather(ctx context.Context) {
 }
 
 func (s *weatherboxServiceService) handleWeatherCondition(ctx context.Context, condition string) {
-	// Cancel any existing animation goroutine
-	if s.animationCancel != nil {
-		s.animationCancel()
-		s.animationWg.Wait()
-	}
-
 	animations, exists := animationMap[strings.ToLower(condition)]
 	if !exists {
 		s.logger.Error("no animations found for condition", "condition", condition)
 		return
 	}
-
-	// Create new context for this animation sequence
-	s.animationCtx, s.animationCancel = context.WithCancel(ctx)
-	s.animationWg.Add(1)
-
-	// Create a new goroutine for animation
-	go func() {
-		defer s.animationWg.Done()
-		for {
-			select {
-			case <-s.animationCtx.Done():
-				return
-			default:
-				for _, animation := range animations {
-					if err := s.animationCtx.Err(); err != nil {
-						return
-					}
-
-					// Execute the animation command
-					if _, err := s.ledComponent.DoCommand(s.animationCtx, animation.Command); err != nil {
-						s.logger.Error("error executing animation command", "error", err)
-						continue
-					}
-
-					// Wait for the animation duration
-					select {
-					case <-s.animationCtx.Done():
-						return
-					case <-time.After(animation.Duration):
-						continue
-					}
-				}
-			}
-		}
-	}()
+	_, err := s.ledComponent.DoCommand(ctx, animations)
+	if err != nil {
+		s.logger.Error("error setting led colors", "error", err)
+		return
+	}
+	s.logger.Infow("led colors set for condition", "condition", condition)
 }
 
 func (s *weatherboxServiceService) Close(context.Context) error {
 	s.cancelFunc()
-
-	if s.animationCancel != nil {
-		s.animationCancel()
-		s.animationWg.Wait()
-	}
 
 	if s.ledCancelFunc != nil {
 		s.ledCancelFunc()
