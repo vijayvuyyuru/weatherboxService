@@ -1,0 +1,77 @@
+{
+  "0": {
+    "sequence": {
+      "animations": [
+        {
+          "animation_name": "pulse",
+          "speed": 0.001,
+          "period": 3,
+          "colors": [[255, 70, 0]]
+        },
+        {
+          "animation_name": "pulse",
+          "speed": 0.001,
+          "period": 3,
+          "colors": [[255, 0, 120]]
+        },
+        {
+          "animation_name": "pulse",
+          "speed": 0.001,
+          "period": 3,
+          "colors": [[255, 0, 5]]
+        }
+      ],
+      "duration": 3
+    }
+  },
+  "1": {
+    "sequence": {
+      "animations": [
+        {
+          "animation_name": "pulse",
+          "speed": 0.001,
+          "period": 3,
+          "colors": [[255, 0, 120]]
+        },
+        {
+          "animation_name": "pulse",
+          "speed": 0.001,
+          "period": 3,
+          "colors": [[255, 0, 5]]
+        },
+        {
+          "animation_name": "pulse",
+          "speed": 0.001,
+          "period": 3,
+          "colors": [[255, 70, 0]]
+        }
+      ],
+      "duration": 3
+    }
+  },
+  "2": {
+    "sequence": {
+      "animations": [
+        {
+          "animation_name": "pulse",
+          "speed": 0.001,
+          "period": 3,
+          "colors": [[255, 0, 5]]
+        },
+        {
+          "animation_name": "pulse",
+          "speed": 0.001,
+          "period": 3,
+          "colors": [[255, 70, 0]]
+        },
+        {
+          "animation_name": "pulse",
+          "speed": 0.001,
+          "period": 3,
+          "colors": [[255, 0, 120]]
+        }
+      ],
+      "duration": 3
+    }
+  }
+}

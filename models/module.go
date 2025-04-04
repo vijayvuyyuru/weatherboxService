@@ -19,8 +19,12 @@ import (
 )
 
 const (
-	period            = 10
+	period            = 3
+	duration          = period
 	animationDuration = time.Millisecond*1000*period + 10
+
+	hot  = 65.0
+	cold = 33.0
 )
 
 var (
@@ -32,30 +36,30 @@ var (
 var (
 	Service      = resource.NewModel("vijayvuyyuru", "weatherbox-service", "service")
 	animationMap = map[string]map[string]any{
-		"sunny": {
+		"sunny/hot": {
 			"0": map[string]any{
 				"sequence": map[string]any{
 					"animations": []map[string]any{
 						{
 							"animation_name": "pulse",
 							"speed":          0.001,
-							"period":         10,
+							"period":         period,
 							"colors":         []any{SunnyOrange},
 						},
 						{
 							"animation_name": "pulse",
 							"speed":          0.001,
-							"period":         10,
+							"period":         period,
 							"colors":         []any{SunnyRed},
 						},
 						{
 							"animation_name": "pulse",
 							"speed":          0.001,
-							"period":         10,
+							"period":         period,
 							"colors":         []any{SunnyMagenta},
 						},
 					},
-					"duration": 10,
+					"duration": duration,
 				},
 			},
 			"1": map[string]any{
@@ -64,23 +68,23 @@ var (
 						{
 							"animation_name": "pulse",
 							"speed":          0.001,
-							"period":         10,
+							"period":         period,
 							"colors":         []any{SunnyRed},
 						},
 						{
 							"animation_name": "pulse",
 							"speed":          0.001,
-							"period":         10,
+							"period":         period,
 							"colors":         []any{SunnyMagenta},
 						},
 						{
 							"animation_name": "pulse",
 							"speed":          0.001,
-							"period":         10,
+							"period":         period,
 							"colors":         []any{SunnyOrange},
 						},
 					},
-					"duration": 10,
+					"duration": duration,
 				},
 			},
 			"2": map[string]any{
@@ -89,23 +93,23 @@ var (
 						{
 							"animation_name": "pulse",
 							"speed":          0.001,
-							"period":         10,
+							"period":         period,
 							"colors":         []any{SunnyMagenta},
 						},
 						{
 							"animation_name": "pulse",
 							"speed":          0.001,
-							"period":         10,
+							"period":         period,
 							"colors":         []any{SunnyOrange},
 						},
 						{
 							"animation_name": "pulse",
 							"speed":          0.001,
-							"period":         10,
+							"period":         period,
 							"colors":         []any{SunnyRed},
 						},
 					},
-					"duration": 10,
+					"duration": duration,
 				},
 			},
 		},
@@ -280,7 +284,23 @@ func (s *weatherboxServiceService) visualizeWeather(ctx context.Context) {
 		s.logger.Error("condition reading from weather sensor is not a string")
 		return
 	}
-	s.handleWeatherCondition(ctx, "sunny")
+	tempOutsideRaw, ok := reading["outside_f"]
+	if !ok {
+		s.logger.Error("no outside temperature reading from weather sensor")
+		return
+	}
+	tempOutside, ok := tempOutsideRaw.(float64)
+	if !ok {
+		s.logger.Error("outside temperature reading from weather sensor is not a float")
+		return
+	}
+	tempString := "moderate"
+	if tempOutside > hot {
+		tempString = "hot"
+	} else if tempOutside < cold {
+		tempString = "cold"
+	}
+	s.handleWeatherCondition(ctx, "sunny/"+tempString)
 }
 
 func (s *weatherboxServiceService) handleWeatherCondition(ctx context.Context, condition string) {
