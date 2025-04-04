@@ -31,6 +31,9 @@ var (
 	SunnyOrange  = []any{255, 70, 0}
 	SunnyRed     = []any{255, 0, 120}
 	SunnyMagenta = []any{255, 0, 5}
+
+	purple = []any{150, 0, 255}
+	blue   = []any{0, 0, 255}
 )
 
 var (
@@ -107,6 +110,83 @@ var (
 							"speed":         0.001,
 							"period":        period,
 							"colors":        []any{SunnyRed},
+						},
+					},
+					"duration": duration,
+				},
+			},
+		},
+		"sunny/cold": {
+			"0": map[string]any{
+				"sequence": map[string]any{
+					"animations": []map[string]any{
+						{
+							"set_animation": "pulse",
+							"speed":         0.001,
+							"period":        period,
+							"colors":        []any{SunnyOrange},
+						},
+						{
+							"set_animation": "pulse",
+							"speed":         0.001,
+							"period":        period,
+							"colors":        []any{purple},
+						},
+						{
+							"set_animation": "pulse",
+							"speed":         0.001,
+							"period":        period,
+							"colors":        []any{blue},
+						},
+					},
+					"duration": duration,
+				},
+			},
+			"1": map[string]any{
+				"sequence": map[string]any{
+					"animations": []map[string]any{
+						{
+							"set_animation": "pulse",
+							"speed":         0.001,
+							"period":        period,
+							"colors":        []any{purple},
+						},
+						{
+							"set_animation": "pulse",
+							"speed":         0.001,
+							"period":        period,
+							"colors":        []any{blue},
+						},
+						{
+							"set_animation": "pulse",
+							"speed":         0.001,
+							"period":        period,
+							"colors":        []any{SunnyOrange},
+						},
+					},
+					"duration": duration,
+				},
+			},
+			"2": map[string]any{
+				"sequence": map[string]any{
+					"animations": []map[string]any{
+						{
+							"set_animation": "pulse",
+							"speed":         0.001,
+							"period":        period,
+							"colors":        []any{blue},
+						},
+						{
+							"set_animation": "pulse",
+							"speed":         0.001,
+							"period":        period,
+							"colors":        []any{SunnyOrange},
+						},
+						{
+							"set_animation": "pulse",
+							"speed":         0.001,
+							"period":        period,
+							"colors":        []any{purple},
 						},
 					},
 					"duration": duration,
@@ -296,7 +376,8 @@ func (s *weatherboxServiceService) visualizeWeather(ctx context.Context) {
 	}
 	tempString := "moderate"
 	if tempOutside > hot {
-		tempString = "hot"
+		//TODO remove this
+		tempString = "cold"
 	} else if tempOutside < cold {
 		tempString = "cold"
 	}
