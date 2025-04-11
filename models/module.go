@@ -381,7 +381,8 @@ func (s *weatherboxServiceService) visualizeWeather(ctx context.Context) {
 	} else if tempOutside < cold {
 		tempString = "cold"
 	}
-	s.handleWeatherCondition(ctx, "sunny/"+tempString)
+	fmt.Println("tempString", tempString)
+	s.handleWeatherCondition(ctx, "sunny/hot")
 }
 
 func (s *weatherboxServiceService) handleWeatherCondition(ctx context.Context, condition string) {
