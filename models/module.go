@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -28,171 +29,57 @@ const (
 )
 
 var (
-	SunnyOrange  = []any{255, 70, 0}
-	SunnyRed     = []any{255, 0, 120}
-	SunnyMagenta = []any{255, 0, 5}
+	orange  = []any{255, 70, 0}
+	red     = []any{255, 0, 120}
+	magenta = []any{255, 0, 5}
 
 	purple = []any{150, 0, 255}
 	blue   = []any{0, 0, 255}
+	green  = []any{50, 250, 10}
+	cyan   = []any{69, 255, 226}
+	white  = []any{255, 255, 255}
 )
+
+func generateSequence(colors [][]any) map[string]any {
+	sequences := make(map[string]any)
+
+	// Generate three sequences with different starting points
+	for i := 0; i < 3; i++ {
+		animations := make([]map[string]any, len(colors))
+
+		// Create animations array with rotated colors
+		for j := 0; j < len(colors); j++ {
+			colorIndex := (i + j) % len(colors)
+			animations[j] = map[string]any{
+				"set_animation": "pulse",
+				"speed":         0.001,
+				"period":        period,
+				"colors":        []any{colors[colorIndex]},
+			}
+		}
+
+		// Create sequence for this rotation
+		sequences[strconv.Itoa(i)] = map[string]any{
+			"sequence": map[string]any{
+				"animations": animations,
+				"duration":   duration,
+			},
+		}
+	}
+
+	return sequences
+}
 
 var (
 	Service      = resource.NewModel("vijayvuyyuru", "weatherbox-service", "service")
 	animationMap = map[string]map[string]any{
-		"sunny/hot": {
-			"0": map[string]any{
-				"sequence": map[string]any{
-					"animations": []map[string]any{
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyOrange},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyRed},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyMagenta},
-						},
-					},
-					"duration": duration,
-				},
-			},
-			"1": map[string]any{
-				"sequence": map[string]any{
-					"animations": []map[string]any{
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyRed},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyMagenta},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyOrange},
-						},
-					},
-					"duration": duration,
-				},
-			},
-			"2": map[string]any{
-				"sequence": map[string]any{
-					"animations": []map[string]any{
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyMagenta},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyOrange},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyRed},
-						},
-					},
-					"duration": duration,
-				},
-			},
-		},
-		"sunny/cold": {
-			"0": map[string]any{
-				"sequence": map[string]any{
-					"animations": []map[string]any{
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyOrange},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{purple},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{blue},
-						},
-					},
-					"duration": duration,
-				},
-			},
-			"1": map[string]any{
-				"sequence": map[string]any{
-					"animations": []map[string]any{
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{purple},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{blue},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyOrange},
-						},
-					},
-					"duration": duration,
-				},
-			},
-			"2": map[string]any{
-				"sequence": map[string]any{
-					"animations": []map[string]any{
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{blue},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{SunnyOrange},
-						},
-						{
-							"set_animation": "pulse",
-							"speed":         0.001,
-							"period":        period,
-							"colors":        []any{purple},
-						},
-					},
-					"duration": duration,
-				},
-			},
-		},
+		"sunny/hot":   generateSequence([][]any{orange, red, magenta}),
+		"sunny/cold":  generateSequence([][]any{orange, purple, blue}),
+		"cloudy/hot":  generateSequence([][]any{white, magenta, red}),
+		"cloudy/cold": generateSequence([][]any{white, purple, blue}),
+		"rainy/hot":   generateSequence([][]any{cyan, magenta, red}),
+		"none":        generateSequence([][]any{green, magenta, red}),
+		"all":         generateSequence([][]any{magenta, purple, orange}),
 	}
 )
 
@@ -210,18 +97,18 @@ type Config struct {
 	LedComponent    string `json:"led-component"`
 }
 
-func (cfg *Config) Validate(path string) ([]string, error) {
+func (cfg *Config) Validate(path string) ([]string, []string, error) {
 	// Add config validation code here
 	if cfg.RefreshInterval == 0 {
-		return nil, fmt.Errorf(`expected "refresh-interval" attribute for weather module`)
+		return nil, nil, fmt.Errorf(`expected "refresh-interval" attribute for weather module`)
 	}
 	if cfg.WeatherSensor == "" {
-		return nil, fmt.Errorf(`expected "weather-sensor" attribute for weather module`)
+		return nil, nil, fmt.Errorf(`expected "weather-sensor" attribute for weather module`)
 	}
 	if cfg.LedComponent == "" {
-		return nil, fmt.Errorf(`expected "led-component" attribute for weather module`)
+		return nil, nil, fmt.Errorf(`expected "led-component" attribute for weather module`)
 	}
-	return []string{cfg.WeatherSensor, cfg.LedComponent}, nil
+	return nil, []string{cfg.WeatherSensor, cfg.LedComponent}, nil
 }
 
 type weatherboxServiceService struct {
@@ -354,16 +241,18 @@ func (s *weatherboxServiceService) visualizeWeather(ctx context.Context) {
 		return
 	}
 	s.logger.Info("weather reading", "reading", reading)
-	conditionRaw, ok := reading["condition"]
+	codeRaw, ok := reading["code"]
 	if !ok {
 		s.logger.Error("no condition reading from weather sensor")
 		return
 	}
-	_, ok = conditionRaw.(string)
+	code, ok := codeRaw.(float64)
 	if !ok {
-		s.logger.Error("condition reading from weather sensor is not a string")
+		s.logger.Error("code reading from weather sensor is not a float")
 		return
 	}
+	condition := getCondition(code)
+
 	tempOutsideRaw, ok := reading["outside_f"]
 	if !ok {
 		s.logger.Error("no outside temperature reading from weather sensor")
@@ -374,15 +263,28 @@ func (s *weatherboxServiceService) visualizeWeather(ctx context.Context) {
 		s.logger.Error("outside temperature reading from weather sensor is not a float")
 		return
 	}
-	tempString := "moderate"
+
+	tempString := "hot"
 	if tempOutside > hot {
-		//TODO remove this
-		tempString = "cold"
-	} else if tempOutside < cold {
 		tempString = "cold"
 	}
 	fmt.Println("tempString", tempString)
-	s.handleWeatherCondition(ctx, "sunny/hot")
+	s.handleWeatherCondition(ctx, condition+"/"+tempString)
+}
+
+func getCondition(code float64) string {
+	switch code {
+	case 1000, 1003:
+		return "sunny"
+	case 1006, 1009, 1030, 1135, 1147:
+		return "cloudy"
+	case 1063, 1066, 1069, 1072, 1087, 1550, 1153,
+		1168, 1171, 1180, 1183, 1186, 1189, 1192, 1195,
+		1198, 1201, 1204, 1207, 1240, 1243, 1246, 1249,
+		1252, 1273, 1276, 1279, 1282:
+		return "rainy"
+	}
+	return "none"
 }
 
 func (s *weatherboxServiceService) handleWeatherCondition(ctx context.Context, condition string) {
