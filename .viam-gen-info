@@ -1,12 +1,13 @@
 {
-  "module_name": "weatherbox-service",
+  "module_name": "weatherviz",
   "namespace": "vijayvuyyuru",
   "language": "go",
   "resource_type": "service",
   "resource_subtype": "generic",
-  "model_name": "service",
+  "model_name": "weatherviz",
   "enable_cloud_build": true,
   "initialize_git": false,
   "generator_version": "0.1.0",
-  "generated_on": "2025-01-25T00:11:05.601771Z"
+  "generated_on": "2025-08-22T19:17:15.163368Z",
+  "module_readme_link": "README.md"
 }

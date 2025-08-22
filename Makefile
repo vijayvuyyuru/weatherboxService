@@ -1,32 +1,36 @@
-BIN_OUTPUT_PATH = bin
-TOOL_BIN = bin/gotools/$(shell uname -s)-$(shell uname -m)
-UNAME_S ?= $(shell uname -s)
-GOPATH = $(HOME)/go/bin
-export PATH := ${PATH}:$(GOPATH)
 
-build: format update-rdk
-	rm -f $(BIN_OUTPUT_PATH)/weatherbox-service
-	go build $(LDFLAGS) -o $(BIN_OUTPUT_PATH)/weatherbox-service main.go
+GO_BUILD_ENV :=
+GO_BUILD_FLAGS :=
+MODULE_BINARY := bin/weatherviz
 
-module.tar.gz: build
-	rm -f $(BIN_OUTPUT_PATH)/module.tar.gz
-	tar czf $(BIN_OUTPUT_PATH)/module.tar.gz $(BIN_OUTPUT_PATH)/weatherbox-service
+ifeq ($(VIAM_TARGET_OS), windows)
+	GO_BUILD_ENV += GOOS=windows GOARCH=amd64
+	GO_BUILD_FLAGS := -tags no_cgo
+	MODULE_BINARY = bin/weatherviz.exe
+endif
+
+$(MODULE_BINARY): Makefile go.mod *.go cmd/module/*.go 
+	GOOS=$(VIAM_BUILD_OS) GOARCH=$(VIAM_BUILD_ARCH) $(GO_BUILD_ENV) go build $(GO_BUILD_FLAGS) -o $(MODULE_BINARY) cmd/module/main.go
+
+lint:
+	gofmt -s -w .
+
+update:
+	go get go.viam.com/rdk@latest
+	go mod tidy
+
+test:
+	go test ./...
+
+module.tar.gz: meta.json $(MODULE_BINARY)
+ifneq ($(VIAM_TARGET_OS), windows)
+	strip $(MODULE_BINARY)
+endif
+	tar czf $@ meta.json $(MODULE_BINARY)
+
+module: test module.tar.gz
+
+all: test module.tar.gz
 
 setup:
-	if [ "$(UNAME_S)" = "Linux" ]; then \
-		sudo apt-get install -y apt-utils coreutils tar libnlopt-dev libjpeg-dev pkg-config; \
-	fi
-	# remove unused imports
-	go install golang.org/x/tools/cmd/goimports@latest
-	find . -name '*.go' -exec $(GOPATH)/goimports -w {} +
-
-
-clean:
-	rm -rf $(BIN_OUTPUT_PATH)/weatherbox-service $(BIN_OUTPUT_PATH)/module.tar.gz weatherbox-service
-
-format:
-	gofmt -w -s .
-
-update-rdk:
-	go get go.viam.com/rdk@latest
 	go mod tidy

@@ -1,24 +1,30 @@
 {
   "$schema": "https://dl.viam.dev/module.schema.json",
-  "module_id": "vijayvuyyuru:weatherbox-service",
+  "module_id": "vijayvuyyuru:weatherviz",
   "visibility": "public",
-  "url": "https://github.com/vijayvuyyuru/weatherboxService",
-  "description": "Modular generic service: service",
+  "url": "",
+  "description": "Modular generic service: weatherviz",
   "models": [
     {
       "api": "rdk:service:generic",
-      "model": "vijayvuyyuru:weatherbox-service:service"
+      "model": "vijayvuyyuru:weatherviz:weatherviz",
+      "short_description": "Provide a short (100 characters or less) description of this model here",
+      "markdown_link": "README.md#model-vijayvuyyuruweathervizweatherviz"
     }
   ],
-  "entrypoint": "bin/weatherbox-service",
+  "applications": null,
+  "markdown_link": "README.md",
+  "entrypoint": "bin/weatherviz",
   "first_run": "",
   "build": {
     "build": "make module.tar.gz",
     "setup": "make setup",
-    "path": "bin/module.tar.gz",
+    "path": "module.tar.gz",
     "arch": [
       "linux/amd64",
-      "linux/arm64"
+      "linux/arm64",
+      "darwin/arm64",
+      "windows/amd64"
     ]
   }
 }
